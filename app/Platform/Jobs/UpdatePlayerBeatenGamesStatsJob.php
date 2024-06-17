@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Platform\Jobs;
 
 use App\Models\User;
@@ -29,7 +31,7 @@ class UpdatePlayerBeatenGamesStatsJob implements ShouldQueue, ShouldBeUniqueUnti
 
     public function uniqueId(): string
     {
-        return config('queue.default') === 'sync' ? '' : $this->userId;
+        return config('queue.default') === 'sync' ? '' : "{$this->userId}";
     }
 
     /**
@@ -49,13 +51,12 @@ class UpdatePlayerBeatenGamesStatsJob implements ShouldQueue, ShouldBeUniqueUnti
         }
 
         $user = User::find($this->userId);
-
         if (!$user) {
             // might've been deleted
             return;
         }
 
         app()->make(UpdatePlayerBeatenGamesStats::class)
-            ->execute(User::findOrFail($this->userId));
+            ->execute($user);
     }
 }
